@@ -5,7 +5,7 @@ namespace MarkdownBuild
 {
     public class Builder
     {
-        public Markdown Markdown { get; set; }
+        internal Markdown Markdown { get; set; }
 
         public Builder()
         {
