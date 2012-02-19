@@ -7,3 +7,13 @@ p
 {
     margin: 0;
 }
+
+#header
+{
+    background-color: #DDD;
+    font-size: small;
+    position: absolute;
+    text-align: center;
+    top: 0px;
+    width: 99%;
+}

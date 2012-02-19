@@ -61,11 +61,38 @@ namespace MarkdownBuild {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;{0}&lt;/title&gt;&lt;/head&gt;&lt;body&gt;.
+        /// </summary>
+        internal static string HtmlHeader {
+            get {
+                return ResourceManager.GetString("HtmlHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;script language=&quot;javascript&quot; type=&quot;text/javascript&quot; src=&quot;{0}&quot;&gt;&lt;/script&gt;.
         /// </summary>
         internal static string JavascriptReference {
             get {
                 return ResourceManager.GetString("JavascriptReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;div id=&quot;{0}&quot;&gt;{1}&lt;/div&gt;.
+        /// </summary>
+        internal static string PartialBlock {
+            get {
+                return ResourceManager.GetString("PartialBlock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _.
+        /// </summary>
+        internal static string PartialPrefix {
+            get {
+                return ResourceManager.GetString("PartialPrefix", resourceCulture);
             }
         }
         

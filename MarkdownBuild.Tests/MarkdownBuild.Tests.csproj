@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Example\index.md" />
+    <None Include="Example\_header.md" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

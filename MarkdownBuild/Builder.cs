@@ -45,6 +45,8 @@ namespace MarkdownBuild
                 {
                     // Transform markdown files to html
                     var fileName = Path.GetFileNameWithoutExtension(sourceFileName);
+                    if (fileName.StartsWith(Resources.PartialPrefix))
+                        continue;
                     var destFileName = Path.Combine(destinationDirectory, fileName + ".html");
                     TransformFile(sourceFileName, destFileName, String.Format(header, fileName), footer);
                 }
@@ -74,17 +76,29 @@ namespace MarkdownBuild
 
         private static string GetHeader(string sourceDirectory)
         {
-            var header = new StringBuilder("<!DOCTYPE html><html><head><title>{0}</title></head><body>");
+            var header = new StringBuilder(Resources.HtmlHeader);
             AppendReferences(header, StyleSheets(sourceDirectory), Resources.StyleReference);
             return header.ToString();
         }
 
-        private static string GetFooter(string sourceDirectory)
+        private string GetFooter(string sourceDirectory)
         {
             var footer = new StringBuilder("</body>");
             AppendReferences(footer, Scripts(sourceDirectory), Resources.JavascriptReference);
+            IncludePartials(footer, Partials(sourceDirectory));
             footer.AppendLine("</html>");
             return footer.ToString();
+        }
+
+        private void IncludePartials(StringBuilder footer, IEnumerable<string> partials)
+        {
+            foreach (var partial in partials)
+            {
+                var md = File.ReadAllText(partial);
+                var id = Path.GetFileNameWithoutExtension(partial).Substring(1);
+                var html = String.Format(Resources.PartialBlock, id, Markdown.Transform(md).TrimEnd());
+                footer.AppendLine(html);
+            }
         }
 
         private static void AppendReferences(StringBuilder header, IEnumerable<string> fileNames, string referenceFormat)
@@ -94,6 +108,12 @@ namespace MarkdownBuild
                 var reference = String.Format(referenceFormat, fileName);
                 header.AppendLine(reference);
             }
+        }
+
+        private static IEnumerable<string> Partials(string sourceDirectory)
+        {
+            return Directory
+                .EnumerateFiles(sourceDirectory, Resources.PartialPrefix + "*");
         }
 
         private static IEnumerable<string> StyleSheets(string sourceDirectory)

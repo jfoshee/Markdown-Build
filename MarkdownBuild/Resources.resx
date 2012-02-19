@@ -117,9 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="HtmlHeader" xml:space="preserve">
+    <value>&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;{0}&lt;/title&gt;&lt;/head&gt;&lt;body&gt;</value>
+    <comment>{0} is the title</comment>
+  </data>
   <data name="JavascriptReference" xml:space="preserve">
     <value>&lt;script language="javascript" type="text/javascript" src="{0}"&gt;&lt;/script&gt;</value>
     <comment>{0} is the name of the js file</comment>
+  </data>
+  <data name="PartialBlock" xml:space="preserve">
+    <value>&lt;div id="{0}"&gt;{1}&lt;/div&gt;</value>
+    <comment>{0} is the id, {1} is the partial content</comment>
+  </data>
+  <data name="PartialPrefix" xml:space="preserve">
+    <value>_</value>
   </data>
   <data name="StyleReference" xml:space="preserve">
     <value>&lt;link rel="stylesheet" type="text/css" href="{0}" /&gt;</value>

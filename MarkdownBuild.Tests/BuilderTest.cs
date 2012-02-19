@@ -200,13 +200,63 @@ namespace MarkdownBuild.Tests
         //    AssertFileContains(destination, "abc.html", "<title>Expected Title</title>");
         //}
 
+        #region Partials
+
+        [TestMethod]
+        public void ShouldIncludeAllPartialsInAllPagesInDirectory()
+        {
+            // Arrange & Act
+            var dest = SetupAndTransform(src =>
+                {
+                    WriteText(src, "_pA.md", "## p1");
+                    WriteText(src, "_pB.md", "## p2");
+                    WriteText(src, "a.md", "a");
+                    WriteText(src, "b.md", "b");
+                });
+
+            // Assert
+            AssertFileContains(dest, "a.html", "<h2>p1");
+            AssertFileContains(dest, "a.html", "<h2>p2");
+            AssertFileContains(dest, "b.html", "<h2>p1");
+            AssertFileContains(dest, "b.html", "<h2>p2");
+        }
+
+        [TestMethod]
+        public void PartialsShouldBeWrappedInDivWithIdFromFileName()
+        {
+            // Arrange & Act
+            var dest = SetupAndTransform(src =>
+            {
+                WriteText(src, "_Expected.md", "## p1");
+                WriteText(src, "a.md", "a");
+            });
+
+            // Assert
+            AssertFileContains(dest, "a.html", "<div id=\"Expected\"><h2>p1</h2></div>");
+        }
+
+        [TestMethod]
+        public void PartialsShouldNotBeInOutputDirectory()
+        {
+            // Arrange & Act
+            var dest = SetupAndTransform(src => WriteText(src, "_part.md", "bla"));
+
+            // Assert
+            Assert.IsFalse(File.Exists(Path.Combine(dest, "_part.html")));
+        }
+
+        // Partials should be at the end
+        // Partials must have a markdown extension
+
+        #endregion
+
         [TestMethod, DeploymentItem(@"MarkdownBuild.Tests\Example", "Example")]
         public void Example()
         {
             Subject.TransformFiles("Example", TestDirectory());
             var indexPath = Path.Combine(TestDirectory(), "index.html");
             Console.WriteLine(indexPath);
-            //Process.Start(indexPath); // Uncomment to open page in browser
+            //System.Diagnostics.Process.Start(indexPath); // Uncomment to open page in browser
         }
 
         private string SetupAndTransform(Action<string> actOnSourceDirectory)
@@ -241,8 +291,8 @@ namespace MarkdownBuild.Tests
         }
 
         // TODO: Should styles be in head tag?
-        // TODO: _header and _footer files
         // TODO: text encoding which matches file encoding (e.g. UTF-8)
         // TODO: Other css or js extensions? Or case-insensitive?
+        // TODO: Ignore white space in tests
     }
 }
