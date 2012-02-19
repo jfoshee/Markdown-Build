@@ -133,6 +133,25 @@ namespace MarkdownBuild.Tests
             TextFileAssert.AreEqual(Path.Combine(src, justCopyFileName), Path.Combine(dst, justCopyFileName));
         }
 
+        [TestMethod]
+        public void ShouldAddReferencesToCssFiles()
+        {
+            // Arrange
+            var src = TestSubdirectory("S");
+            var dst = TestSubdirectory("D");
+            WriteText(src, "style1.css", "p {}");
+            WriteText(src, "style2.css", "h1 {}");
+            WriteText(src, "a.md", "");
+
+            // Act
+            Subject.TransformFiles(src, dst);
+
+            // Assert
+            TestContext.AddResultFile(Path.Combine(dst, "a.html"));
+            AssertFileContains(dst, "a.html", @"<link rel=""stylesheet"" type=""text/css"" href=""style1.css"" />");
+            AssertFileContains(dst, "a.html", @"<link rel=""stylesheet"" type=""text/css"" href=""style2.css"" />");
+        }
+
         private void AssertFileContains(string dst, string fileName, string text)
         {
             TextFileAssert.Contains(Path.Combine(dst, fileName), text);
@@ -150,7 +169,6 @@ namespace MarkdownBuild.Tests
             return src;
         }
 
-        // TODO: Reference .css files
         // TODO: Reference .js files
         // TODO: _header and _footer
 
