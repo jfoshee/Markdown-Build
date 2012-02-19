@@ -61,7 +61,7 @@ namespace MarkdownBuild {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;script language=&quot;javascript&quot; type=&quot;text/javascript&quot; src=&quot;{0}&quot; /&gt;.
+        ///   Looks up a localized string similar to &lt;script language=&quot;javascript&quot; type=&quot;text/javascript&quot; src=&quot;{0}&quot;&gt;&lt;/script&gt;.
         /// </summary>
         internal static string JavascriptReference {
             get {

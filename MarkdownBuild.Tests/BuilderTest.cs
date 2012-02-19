@@ -144,27 +144,64 @@ namespace MarkdownBuild.Tests
         [TestMethod]
         public void ShouldAddReferencesToJsFiles()
         {
-            StringAssert.Contains(Resources.JavascriptReference, "<script");
+            StringAssert.StartsWith(Resources.JavascriptReference, "<script");
+            StringAssert.EndsWith(Resources.JavascriptReference, "</script>", "The closing script tag is required");
             VerifyReferencesAddedToFilesOfExtension("js", Resources.JavascriptReference, "alert('1');");
         }
 
         private void VerifyReferencesAddedToFilesOfExtension(string extension, string reference, string content)
         {
-            // Arrange
-            var src = TestSubdirectory("S");
-            var dst = TestSubdirectory("D");
-            WriteText(src, "file1." + extension, content);
-            WriteText(src, "file2." + extension, content);
-            WriteText(src, "a.md", "");
-
-            // Act
-            Subject.TransformFiles(src, dst);
+            // Arrange & Act
+            var dst = SetupAndTransform(src =>
+            {
+                WriteText(src, "file1." + extension, content);
+                WriteText(src, "file2." + extension, content);
+                WriteText(src, "a.md", "");
+            });
 
             // Assert
             var file = Path.Combine(dst, "a.html");
             TestContext.AddResultFile(file);
             TextFileAssert.Contains(file, String.Format(reference, "file1." + extension));
             TextFileAssert.Contains(file, String.Format(reference, "file2." + extension));
+        }
+
+        [TestMethod]
+        public void ShouldAddHtmlHeadAndBodyTags()
+        {
+            // Arrange & Act
+            var destination = SetupAndTransform(src => WriteText(src, "a.md", "foo"));
+
+            // Assert
+            var file = Path.Combine(destination, "a.html");
+            TestContext.AddResultFile(file);
+            TextFileAssert.StartsWith(file, "<!DOCTYPE html><html><head><title>a</title></head><body>");
+            TextFileAssert.Contains(file, "foo");
+            TextFileAssert.EndsWith(file, "</body></html>");
+        }
+
+        [TestMethod]
+        public void ShouldGetTitleFromFileName()
+        {
+            // Arrange & Act
+            var destination = SetupAndTransform(src => WriteText(src, "MyExpectedTitle.md", "foo"));
+
+            // Assert
+            AssertFileContains(destination, "MyExpectedTitle.html", "<title>MyExpectedTitle</title>");
+        }
+
+        private string SetupAndTransform(Action<string> actOnSourceDirectory)
+        {
+            // Arrange
+            var src = TestSubdirectory("S");
+            var dst = TestSubdirectory("D");
+            actOnSourceDirectory(src);
+
+            // Act
+            Subject.TransformFiles(src, dst);
+
+            // Assert
+            return dst;
         }
 
         private void AssertFileContains(string dst, string fileName, string text)
@@ -184,8 +221,8 @@ namespace MarkdownBuild.Tests
             return src;
         }
 
-        // TODO: html, head and body tags
-        // TODO: _header and _footer
+        // TODO: Should styles be in head tag?
+        // TODO: _header and _footer files
         // TODO: text encoding which matches file encoding (e.g. UTF-8)
         // TODO: Other css or js extensions? Or case-insensitive?
     }

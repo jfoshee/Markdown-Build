@@ -42,7 +42,7 @@ namespace MarkdownBuild
                     // Transform markdown files to html
                     var fileName = Path.GetFileNameWithoutExtension(sourceFileName);
                     var destFileName = Path.Combine(destinationDirectory, fileName + ".html");
-                    TransformFile(sourceFileName, destFileName, header, "");
+                    TransformFile(sourceFileName, destFileName, String.Format(header, fileName), "</body></html>");
                 }
                 else
                     // Copy non-markdown files
@@ -70,7 +70,7 @@ namespace MarkdownBuild
 
         private string GetHeader(string sourceDirectory)
         {
-            var header = new StringBuilder();
+            var header = new StringBuilder("<!DOCTYPE html><html><head><title>{0}</title></head><body>");
             AppendReferences(header, StyleSheets(sourceDirectory), Resources.StyleReference);
             AppendReferences(header, Scripts(sourceDirectory), Resources.JavascriptReference);
             return header.ToString();
