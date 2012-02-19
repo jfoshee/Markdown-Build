@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -69,17 +70,35 @@ namespace MarkdownBuild
 
         private string GetHeader(string sourceDirectory)
         {
-            var styleSheets = StyleSheets(sourceDirectory);
             var header = new StringBuilder();
-            foreach (var css in styleSheets)
-                header.AppendLine(@"<link rel=""stylesheet"" type=""text/css"" href=""" + css + @""" />");
+            AppendReferences(header, StyleSheets(sourceDirectory), Resources.StyleReference);
+            AppendReferences(header, Scripts(sourceDirectory), Resources.JavascriptReference);
             return header.ToString();
+        }
+
+        private static void AppendReferences(StringBuilder header, IEnumerable<string> fileNames, string referenceFormat)
+        {
+            foreach (var fileName in fileNames)
+            {
+                var reference = String.Format(referenceFormat, fileName);
+                header.AppendLine(reference);
+            }
         }
 
         private IEnumerable<string> StyleSheets(string sourceDirectory)
         {
+            return EnumerateFileNames(sourceDirectory, "css");
+        }
+
+        private IEnumerable<string> Scripts(string sourceDirectory)
+        {
+            return EnumerateFileNames(sourceDirectory, "js");
+        }
+
+        private static IEnumerable<string> EnumerateFileNames(string sourceDirectory, string extension)
+        {
             return Directory
-                .EnumerateFiles(sourceDirectory, "*.css")
+                .EnumerateFiles(sourceDirectory, "*." + extension)
                 .Select(f => Path.GetFileName(f));
         }
     }

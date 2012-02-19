@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MarkdownSharp;
@@ -136,20 +137,34 @@ namespace MarkdownBuild.Tests
         [TestMethod]
         public void ShouldAddReferencesToCssFiles()
         {
+            StringAssert.Contains(Resources.StyleReference, "<link");
+            VerifyReferencesAddedToFilesOfExtension("css", Resources.StyleReference, "p {}");
+        }
+
+        [TestMethod]
+        public void ShouldAddReferencesToJsFiles()
+        {
+            StringAssert.Contains(Resources.JavascriptReference, "<script");
+            VerifyReferencesAddedToFilesOfExtension("js", Resources.JavascriptReference, "alert('1');");
+        }
+
+        private void VerifyReferencesAddedToFilesOfExtension(string extension, string reference, string content)
+        {
             // Arrange
             var src = TestSubdirectory("S");
             var dst = TestSubdirectory("D");
-            WriteText(src, "style1.css", "p {}");
-            WriteText(src, "style2.css", "h1 {}");
+            WriteText(src, "file1." + extension, content);
+            WriteText(src, "file2." + extension, content);
             WriteText(src, "a.md", "");
 
             // Act
             Subject.TransformFiles(src, dst);
 
             // Assert
-            TestContext.AddResultFile(Path.Combine(dst, "a.html"));
-            AssertFileContains(dst, "a.html", @"<link rel=""stylesheet"" type=""text/css"" href=""style1.css"" />");
-            AssertFileContains(dst, "a.html", @"<link rel=""stylesheet"" type=""text/css"" href=""style2.css"" />");
+            var file = Path.Combine(dst, "a.html");
+            TestContext.AddResultFile(file);
+            TextFileAssert.Contains(file, String.Format(reference, "file1." + extension));
+            TextFileAssert.Contains(file, String.Format(reference, "file2." + extension));
         }
 
         private void AssertFileContains(string dst, string fileName, string text)
@@ -169,25 +184,9 @@ namespace MarkdownBuild.Tests
             return src;
         }
 
-        // TODO: Reference .js files
+        // TODO: html, head and body tags
         // TODO: _header and _footer
-
-        //[TestMethod]
-        //public void ShouldInjectStyleReferenceIfCssFileFound()
-        //{
-        //    // Arrange
-        //    var directory = TestDirectory();
-        //    var stylePath = Path.Combine(directory, "style.css");
-        //    File.WriteAllText(stylePath, @"p{ font-family:""Times New Roman""; }");
-        //    var markdownFile = Path.Combine(directory, "foo.md");
-        //    File.WriteAllText(markdownFile, "## Test");
-        //    var htmlFile = Path.Combine(directory, "bar.html");
-
-        //    // Act
-        //    Subject.TransformFile(markdownFile, htmlFile);
-
-        //    // Assert
-        //    TextFileAssert.Contains(htmlFile, @"<link rel=""stylesheet"" type=""text/css"" href=""style.css"" />");
-        //}
+        // TODO: text encoding which matches file encoding (e.g. UTF-8)
+        // TODO: Other css or js extensions? Or case-insensitive?
     }
 }
