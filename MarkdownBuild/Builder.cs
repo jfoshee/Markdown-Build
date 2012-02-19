@@ -37,6 +37,7 @@ namespace MarkdownBuild
         {
             Directory.CreateDirectory(destinationDirectory);
             var header = GetHeader(sourceDirectory);
+            var footer = GetFooter(sourceDirectory);
             foreach (var sourceFileName in Directory.EnumerateFiles(sourceDirectory))
             {
                 var extension = GetExtension(sourceFileName);
@@ -45,7 +46,7 @@ namespace MarkdownBuild
                     // Transform markdown files to html
                     var fileName = Path.GetFileNameWithoutExtension(sourceFileName);
                     var destFileName = Path.Combine(destinationDirectory, fileName + ".html");
-                    TransformFile(sourceFileName, destFileName, String.Format(header, fileName), "</body></html>");
+                    TransformFile(sourceFileName, destFileName, String.Format(header, fileName), footer);
                 }
                 else
                     // Copy non-markdown files
@@ -75,8 +76,15 @@ namespace MarkdownBuild
         {
             var header = new StringBuilder("<!DOCTYPE html><html><head><title>{0}</title></head><body>");
             AppendReferences(header, StyleSheets(sourceDirectory), Resources.StyleReference);
-            AppendReferences(header, Scripts(sourceDirectory), Resources.JavascriptReference);
             return header.ToString();
+        }
+
+        private static string GetFooter(string sourceDirectory)
+        {
+            var footer = new StringBuilder("</body>");
+            AppendReferences(footer, Scripts(sourceDirectory), Resources.JavascriptReference);
+            footer.AppendLine("</html>");
+            return footer.ToString();
         }
 
         private static void AppendReferences(StringBuilder header, IEnumerable<string> fileNames, string referenceFormat)

@@ -190,6 +190,25 @@ namespace MarkdownBuild.Tests
             AssertFileContains(destination, "MyExpectedTitle.html", "<title>MyExpectedTitle</title>");
         }
 
+        //[TestMethod]
+        //public void ShouldGetTitleFromFirstH1()
+        //{
+        //    // Arrange & Act
+        //    var destination = SetupAndTransform(src => WriteText(src, "abc.md", "foo # Expected Title \n bar"));
+
+        //    // Assert
+        //    AssertFileContains(destination, "abc.html", "<title>Expected Title</title>");
+        //}
+
+        [TestMethod, DeploymentItem(@"MarkdownBuild.Tests\Example", "Example")]
+        public void Example()
+        {
+            Subject.TransformFiles("Example", TestDirectory());
+            var indexPath = Path.Combine(TestDirectory(), "index.html");
+            Console.WriteLine(indexPath);
+            //Process.Start(indexPath); // Uncomment to open page in browser
+        }
+
         private string SetupAndTransform(Action<string> actOnSourceDirectory)
         {
             // Arrange
