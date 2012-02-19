@@ -71,7 +71,7 @@ namespace MarkdownBuild
             File.Copy(sourceFileName, destFileName);
         }
 
-        private string GetHeader(string sourceDirectory)
+        private static string GetHeader(string sourceDirectory)
         {
             var header = new StringBuilder("<!DOCTYPE html><html><head><title>{0}</title></head><body>");
             AppendReferences(header, StyleSheets(sourceDirectory), Resources.StyleReference);
@@ -88,12 +88,12 @@ namespace MarkdownBuild
             }
         }
 
-        private IEnumerable<string> StyleSheets(string sourceDirectory)
+        private static IEnumerable<string> StyleSheets(string sourceDirectory)
         {
             return EnumerateFileNames(sourceDirectory, "css");
         }
 
-        private IEnumerable<string> Scripts(string sourceDirectory)
+        private static IEnumerable<string> Scripts(string sourceDirectory)
         {
             return EnumerateFileNames(sourceDirectory, "js");
         }
