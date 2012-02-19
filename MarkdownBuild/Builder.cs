@@ -26,7 +26,10 @@ namespace MarkdownBuild
         public void TransformFile(string markdownFile, string htmlFile, string header, string footer)
         {
             var md = File.ReadAllText(markdownFile);
-            var html = header + Markdown.Transform(md) + footer;
+            var html =
+                header + Environment.NewLine +
+                Markdown.Transform(md) +
+                Environment.NewLine + footer;
             File.WriteAllText(htmlFile, html);
         }
 
