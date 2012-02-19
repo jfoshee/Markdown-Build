@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using MarkdownSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestDrivenDesign;
@@ -13,6 +14,21 @@ namespace MarkdownBuild.Tests
         {
             Markdown markdown = Subject.Markdown;
             Assert.IsNotNull(markdown);
+        }
+
+        [TestMethod]
+        public void ShouldHaveDefaultOptions()
+        {
+            // Arrange
+            IMarkdownBuildOptions options = Subject.Options;
+
+            // Assert
+            Assert.IsNotNull(options);
+            var extensions = options.MarkdownExtensions.ToList();
+            CollectionAssert.Contains(extensions, "txt");
+            CollectionAssert.Contains(extensions, "md");
+            CollectionAssert.Contains(extensions, "mkdn");
+            CollectionAssert.Contains(extensions, "markdown");
         }
 
         [TestMethod]
@@ -68,6 +84,28 @@ namespace MarkdownBuild.Tests
             DirectoryAssert.Exists(destinationDirectory);
             TextFileAssert.Contains(Path.Combine(destinationDirectory, "a.html"), "<em>A</em>");
             TextFileAssert.Contains(Path.Combine(destinationDirectory, "b.html"), "<em>B</em>");
+        }
+
+        [TestMethod]
+        public void ShouldRecurseIntoSubdirectories()
+        {
+            // Arrange
+            var destinationDirectory = Path.Combine(TestDirectory(), "D");
+            var sourceDirectory = Path.Combine(TestDirectory(), "Src");
+            var sub1 = Path.Combine(sourceDirectory, "s1", "s11");
+            var sub2 = Path.Combine(sourceDirectory, "s2");
+            Directory.CreateDirectory(sub1);
+            Directory.CreateDirectory(sub2);
+            File.WriteAllText(Path.Combine(sub1, "i.txt"), "_I_");
+            File.WriteAllText(Path.Combine(sub2, "j.txt"), "_J_");
+
+            // Act
+            Subject.TransformFiles(sourceDirectory, destinationDirectory);
+
+            // Assert
+            DirectoryAssert.Exists(destinationDirectory);
+            TextFileAssert.Contains(Path.Combine(destinationDirectory, "s1", "s11", "i.html"), "<em>I</em>");
+            TextFileAssert.Contains(Path.Combine(destinationDirectory, "s2", "j.html"), "<em>J</em>");
         }
 
         // TODO: Recursive

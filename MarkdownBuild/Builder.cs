@@ -5,11 +5,13 @@ namespace MarkdownBuild
 {
     public class Builder
     {
+        public IMarkdownBuildOptions Options { get; set; }
         internal Markdown Markdown { get; set; }
 
         public Builder()
         {
             Markdown = new Markdown();
+            Options = new DefaultMarkdownBuildOptions();
         }
 
         public void TransformFile(string markdownFile, string htmlFile)
@@ -27,6 +29,8 @@ namespace MarkdownBuild
         public void TransformFiles(string sourceDirectory, string destinationDirectory)
         {
             Directory.CreateDirectory(destinationDirectory);
+            foreach (var dir in Directory.EnumerateDirectories(sourceDirectory))
+                TransformFiles(dir, Path.Combine(destinationDirectory, Path.GetFileName(dir)));
             foreach (var md in Directory.EnumerateFiles(sourceDirectory))
             {
                 var filename = Path.GetFileNameWithoutExtension(md);
