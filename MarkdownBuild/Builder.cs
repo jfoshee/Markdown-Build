@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using MarkdownSharp;
 
 namespace MarkdownBuild
@@ -29,14 +30,27 @@ namespace MarkdownBuild
         public void TransformFiles(string sourceDirectory, string destinationDirectory)
         {
             Directory.CreateDirectory(destinationDirectory);
+            foreach (var sourceFileName in Directory.EnumerateFiles(sourceDirectory))
+            {
+                var extension = Path.GetExtension(sourceFileName).Substring(1);
+                if (Options.MarkdownExtensions.Contains(extension))
+                {
+                    // Transform markdown files to html
+                    var fileName = Path.GetFileNameWithoutExtension(sourceFileName);
+                    var destFileName = Path.Combine(destinationDirectory, fileName + ".html");
+                    TransformFile(sourceFileName, destFileName);
+                }
+                else
+                {
+                    // Copy non-markdown files
+                    var filename = Path.GetFileName(sourceFileName);
+                    var destFileName = Path.Combine(destinationDirectory, filename);
+                    File.Copy(sourceFileName, destFileName);
+                }
+            }
+            // Recurse into subdirectories
             foreach (var dir in Directory.EnumerateDirectories(sourceDirectory))
                 TransformFiles(dir, Path.Combine(destinationDirectory, Path.GetFileName(dir)));
-            foreach (var md in Directory.EnumerateFiles(sourceDirectory))
-            {
-                var filename = Path.GetFileNameWithoutExtension(md);
-                var html = Path.Combine(destinationDirectory, filename + ".html");
-                TransformFile(md, html);
-            }
         }
     }
 }

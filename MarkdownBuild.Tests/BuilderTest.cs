@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using MarkdownSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using TestDrivenDesign;
 
 namespace MarkdownBuild.Tests
@@ -108,10 +110,39 @@ namespace MarkdownBuild.Tests
             TextFileAssert.Contains(Path.Combine(destinationDirectory, "s2", "j.html"), "<em>J</em>");
         }
 
-        // TODO: Recursive
+        [TestMethod]
+        public void ShouldOnlyCopyNonMarkdownFilesGivenExtensions()
+        {
+            // Arrange
+            var mockOptions = new Mock<IMarkdownBuildOptions>();
+            mockOptions.SetReturnsDefault<IEnumerable<string>>(new string[] { "foo", "bar" });
+            Subject.Options = mockOptions.Object;
+            var src = TestSubdirectory("S");
+            var dst = TestSubdirectory("D");
+            File.WriteAllText(Path.Combine(src, "a.foo"), "_a_");
+            File.WriteAllText(Path.Combine(src, "b.bar"), "_b_");
+            File.WriteAllText(Path.Combine(src, "ignore.txt"), "_ignore_");
+
+            // Act
+            Subject.TransformFiles(src, dst);
+
+            // Assert
+            TextFileAssert.Contains(Path.Combine(dst, "a.html"), "<em>a");
+            TextFileAssert.Contains(Path.Combine(dst, "b.html"), "<em>b");
+            TextFileAssert.Contains(Path.Combine(dst, "ignore.txt"), "_ignore_");
+            TextFileAssert.AreEqual(Path.Combine(src, "ignore.txt"), Path.Combine(dst, "ignore.txt"));
+        }
+
+        private string TestSubdirectory(string subdirectoryName)
+        {
+            var src = Path.Combine(TestDirectory(), subdirectoryName);
+            Directory.CreateDirectory(src);
+            return src;
+        }
+
+        // TODO: Reference .css files
+        // TODO: Reference .js files
         // TODO: _header and _footer
-        // TODO: Just copy non markdown files
-        // TODO: Reference Style.css
 
         //[TestMethod]
         //public void ShouldInjectStyleReferenceIfCssFileFound()
