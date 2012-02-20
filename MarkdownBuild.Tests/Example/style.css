@@ -1,4 +1,4 @@
-﻿body
+body
 {
     font-family: Georgia
 }
@@ -16,4 +16,9 @@ p
     text-align: center;
     top: 0px;
     width: 99%;
+}
+
+#references
+{
+	
 }
