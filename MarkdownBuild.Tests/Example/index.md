@@ -4,7 +4,7 @@
 of Markdown files. It takes two parameters:  
 Source Directory and
 Destination Directory. 
-Files are recursively copied from the source to the definition transforming any markdown files to html along the way.
+Files are recursively copied from the source to the destination transforming any markdown files to html along the way.
 
 ### Markdown Transformed
 Files with known Markdown extensions are transformed to html and written to the output directory. 
