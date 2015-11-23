@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FluentAssertions;
 using MarkdownSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -175,9 +176,26 @@ namespace MarkdownBuild.Tests
             // Assert
             var file = Path.Combine(destination, "a.html");
             TestContext.AddResultFile(file);
-            TextFileAssert.StartsWith(file, "<!DOCTYPE html><html><head><title>a</title></head><body>");
+            TextFileAssert.StartsWith(file, "<!DOCTYPE html><html><head><title>a</title></head><meta charset=\"UTF-8\"><body>");
             TextFileAssert.Contains(file, "foo");
             TextFileAssert.EndsWith(file, "</body></html>");
+        }
+
+        [TestMethod]
+        public void ShouldBeEncodedAsUtf8()
+        {
+            // Arrange
+            var directory = TestDirectory();
+            var markdownFile = Path.Combine(directory, "test.md");
+            File.WriteAllText(markdownFile, "Test");
+            var htmlFile = Path.Combine(directory, "test.html");
+
+            // Act
+            Subject.TransformFile(markdownFile, htmlFile);
+
+            // Assert
+            var byteOrderMark = File.ReadAllBytes(htmlFile).Take(3);
+            byteOrderMark.Should().Equal(0xEF, 0xBB, 0xBF);
         }
 
         [TestMethod]
@@ -291,7 +309,6 @@ namespace MarkdownBuild.Tests
         }
 
         // TODO: Should styles be in head tag?
-        // TODO: text encoding which matches file encoding (e.g. UTF-8)
         // TODO: Other css or js extensions? Or case-insensitive?
         // TODO: Ignore white space in tests
     }

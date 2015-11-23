@@ -30,7 +30,7 @@ namespace MarkdownBuild
                 header + Environment.NewLine +
                 Markdown.Transform(md) +
                 Environment.NewLine + footer;
-            File.WriteAllText(htmlFile, html);
+            File.WriteAllText(htmlFile, html, Encoding.UTF8);
         }
 
         public void TransformFiles(string sourceDirectory, string destinationDirectory)

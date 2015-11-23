@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="HtmlHeader" xml:space="preserve">
-    <value>&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;{0}&lt;/title&gt;&lt;/head&gt;&lt;body&gt;</value>
+    <value>&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;{0}&lt;/title&gt;&lt;/head&gt;&lt;meta charset="UTF-8"&gt;&lt;body&gt;</value>
     <comment>{0} is the title</comment>
   </data>
   <data name="JavascriptReference" xml:space="preserve">
