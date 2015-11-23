@@ -71,7 +71,7 @@ namespace MarkdownBuild
         {
             var filename = Path.GetFileName(sourceFileName);
             var destFileName = Path.Combine(destinationDirectory, filename);
-            File.Copy(sourceFileName, destFileName);
+            File.Copy(sourceFileName, destFileName, overwrite: true);
         }
 
         private static string GetHeader(string sourceDirectory)

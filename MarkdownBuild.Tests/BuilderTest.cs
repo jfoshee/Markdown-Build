@@ -136,6 +136,24 @@ namespace MarkdownBuild.Tests
         }
 
         [TestMethod]
+        public void ShouldReplaceNonMarkdownFiles()
+        {
+            // Arrange
+            var src = TestSubdirectory("S");
+            var dst = TestSubdirectory("D");
+            var fileName = "copy.js";
+            var expected = "// expected text";
+            WriteText(src, fileName, expected);
+            WriteText(dst, fileName, "// not expected");
+
+            // Act
+            Subject.TransformFiles(src, dst);
+
+            // Assert
+            AssertFileContains(dst, fileName, expected);
+        }
+
+        [TestMethod]
         public void ShouldAddReferencesToCssFiles()
         {
             StringAssert.Contains(Resources.StyleReference, "<link");
