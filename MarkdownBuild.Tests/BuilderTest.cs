@@ -169,16 +169,17 @@ namespace MarkdownBuild.Tests
         }
 
         [TestMethod]
-        public void ShouldIncludeBowerComponentsFirst()
+        public void ShouldIncludeBowerComponentsFirstAndSortAlphabetically()
         {
             // Arrange & Act
             var dst = SetupAndTransform(src =>
             {
                 WriteText(src, "a.js", "// a");
-                WriteText(src, "b.js", "// b");
-                WriteText(src, "c.js", "// c");
+                WriteText(Path.Combine(src, "bower_components\\bootstrap"), "bs.min.js", "// bs");
                 WriteText(src, "d.js", "// d");
-                WriteText(Path.Combine(src, "bower_components\\jquery"), "jquery.min.js", "// $");
+                WriteText(src, "c.js", "// c");
+                WriteText(Path.Combine(src, "bower_components\\_jquery"), "jquery.min.js", "// $");
+                WriteText(src, "b.js", "// b");
                 WriteText(src, "a.md", "");
             });
 
@@ -186,10 +187,8 @@ namespace MarkdownBuild.Tests
             var file = Path.Combine(dst, "a.html");
             TestContext.AddResultFile(file);
             var contents  = File.ReadAllText(file);
-            var jqueryIndex = contents.IndexOf("bower_components/jquery/jquery.min.js");
-            jqueryIndex.Should()
-                .BeLessThan(contents.IndexOf("a.js")).And
-                .BeLessThan(contents.IndexOf("d.js"));
+            var expected = new[] {"bower_components/_jquery/jquery.min.js", "bower_components/bootstrap/bs.min.js", "a.js", "b.js", "c.js", "d.js"};
+            expected.Select(s => contents.IndexOf(s)).Should().BeInAscendingOrder();
         }
 
         private void VerifyReferencesAddedToFilesOfExtension(string extension, string reference, string content)

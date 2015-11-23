@@ -64,7 +64,10 @@ namespace MarkdownBuild
         /// </summary>
         private static string GetExtension(string sourceFileName)
         {
-            return Path.GetExtension(sourceFileName).Substring(1);
+            var extension = Path.GetExtension(sourceFileName) ?? String.Empty;
+            if (extension.StartsWith("."))
+                return extension.Substring(1);
+            return String.Empty;
         }
 
         private static void CopyToDirectory(string sourceFileName, string destinationDirectory)
@@ -83,10 +86,10 @@ namespace MarkdownBuild
 
         private string GetFooter(string sourceDirectory)
         {
-            var footer = new StringBuilder("</body>");
+            var footer = new StringBuilder("");
             AppendReferences(footer, Scripts(sourceDirectory), Resources.JavascriptReference);
             IncludePartials(footer, Partials(sourceDirectory));
-            footer.AppendLine("</html>");
+            footer.AppendLine("</body></html>");
             return footer.ToString();
         }
 
@@ -103,6 +106,7 @@ namespace MarkdownBuild
 
         private static void AppendReferences(StringBuilder header, IEnumerable<string> fileNames, string referenceFormat)
         {
+            header.AppendLine();
             foreach (var fileName in fileNames)
             {
                 var reference = String.Format(referenceFormat, fileName);
@@ -136,7 +140,8 @@ namespace MarkdownBuild
                     .Replace(Path.DirectorySeparatorChar, '/')
                     .Substring(1) // Remove leading slash
                 )
-                .OrderBy(path => !path.Contains("bower"));
+                .OrderBy(path => !path.Contains("bower"))
+                .ThenBy(path => path);
         }
     }
 }
