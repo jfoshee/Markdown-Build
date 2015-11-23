@@ -128,9 +128,15 @@ namespace MarkdownBuild
 
         private static IEnumerable<string> EnumerateFileNames(string sourceDirectory, string extension)
         {
+            var fullSourcePath = Path.GetFullPath(sourceDirectory);
             return Directory
-                .EnumerateFiles(sourceDirectory, "*." + extension)
-                .Select(f => Path.GetFileName(f));
+                .EnumerateFiles(fullSourcePath, "*." + extension, SearchOption.AllDirectories)
+                .Select(f => f
+                    .Replace(fullSourcePath, string.Empty)
+                    .Replace(Path.DirectorySeparatorChar, '/')
+                    .Substring(1) // Remove leading slash
+                )
+                .OrderBy(path => !path.Contains("bower"));
         }
     }
 }

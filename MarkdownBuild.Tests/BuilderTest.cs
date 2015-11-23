@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using MarkdownSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using TestDrivenDesign;
 
 namespace MarkdownBuild.Tests
@@ -168,6 +168,30 @@ namespace MarkdownBuild.Tests
             VerifyReferencesAddedToFilesOfExtension("js", Resources.JavascriptReference, "alert('1');");
         }
 
+        [TestMethod]
+        public void ShouldIncludeBowerComponentsFirst()
+        {
+            // Arrange & Act
+            var dst = SetupAndTransform(src =>
+            {
+                WriteText(src, "a.js", "// a");
+                WriteText(src, "b.js", "// b");
+                WriteText(src, "c.js", "// c");
+                WriteText(src, "d.js", "// d");
+                WriteText(Path.Combine(src, "bower_components\\jquery"), "jquery.min.js", "// $");
+                WriteText(src, "a.md", "");
+            });
+
+            // Assert
+            var file = Path.Combine(dst, "a.html");
+            TestContext.AddResultFile(file);
+            var contents  = File.ReadAllText(file);
+            var jqueryIndex = contents.IndexOf("bower_components/jquery/jquery.min.js");
+            jqueryIndex.Should()
+                .BeLessThan(contents.IndexOf("a.js")).And
+                .BeLessThan(contents.IndexOf("d.js"));
+        }
+
         private void VerifyReferencesAddedToFilesOfExtension(string extension, string reference, string content)
         {
             // Arrange & Act
@@ -175,6 +199,7 @@ namespace MarkdownBuild.Tests
             {
                 WriteText(src, "file1." + extension, content);
                 WriteText(src, "file2." + extension, content);
+                WriteText(Path.Combine(src, "nested"), "file3." + extension, content);
                 WriteText(src, "a.md", "");
             });
 
@@ -183,6 +208,7 @@ namespace MarkdownBuild.Tests
             TestContext.AddResultFile(file);
             TextFileAssert.Contains(file, String.Format(reference, "file1." + extension));
             TextFileAssert.Contains(file, String.Format(reference, "file2." + extension));
+            TextFileAssert.Contains(file, String.Format(reference, "nested/file3." + extension));
         }
 
         [TestMethod]
@@ -316,6 +342,7 @@ namespace MarkdownBuild.Tests
 
         private void WriteText(string directory, string fileName, string text)
         {
+            Directory.CreateDirectory(directory);
             File.WriteAllText(Path.Combine(directory, fileName), text);
         }
 
